@@ -1,10 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
@@ -20,7 +16,7 @@ PKG_MIRROR_HASH:=52156d096ba21fdc18316040749b20868e500d7bd785a0d33533610ba7f7169
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILE:=LICENSE
-PKG_MAINTAINER:=CN_SZTL <cnsztl@immortalwrt.org>
+PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_GO_NATS_COMPRESS_GOPROXY \
@@ -37,15 +33,15 @@ include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
 
 define Package/go-nats
-	SECTION:=net
-	CATEGORY:=Network
-	TITLE:=A NAT type discovery tool
-	URL:=https://github.com/enobufs/go-nats
-	DEPENDS:=$(GO_ARCH_DEPENDS)
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=A NAT type discovery tool
+  URL:=https://github.com/enobufs/go-nats
+  DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
 define Package/go-nats/description
-	A NAT type discovery tool using STUN written purely in Go.
+  A NAT type discovery tool using STUN.
 endef
 
 define Package/go-nats/config
@@ -55,7 +51,8 @@ config GO_NATS_COMPRESS_GOPROXY
 
 config GO_NATS_COMPRESS_UPX
 	bool "Compress executable files with UPX"
-	default y
+	depends on !mips64
+	default n
 endef
 
 ifeq ($(CONFIG_GO_NATS_COMPRESS_GOPROXY),y)

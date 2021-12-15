@@ -1,22 +1,17 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
 # Copyright (C) 2020 SharerMax
-#
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=v2ray-plugin
-PKG_VERSION:=4.37.2
+PKG_VERSION:=4.44.0
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/teddysun/v2ray-plugin/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=e776a2294dba5dbf832dc5ea673ffbb66ae6fac54df90ff286a5d1833a4ae874
+PKG_HASH:=f94e8efe879a5300871dd01faec7d6635baaef4dbd39d83f4362802f716d386e
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
@@ -44,24 +39,22 @@ config V2RAY_PLUGIN_COMPRESS_GOPROXY
 
 config V2RAY_PLUGIN_COMPRESS_UPX
 	bool "Compress executable files with UPX"
-	default y
+	depends on !mips64
+	default n
 endef
 
-ifeq ($(CONFIG_GOWEBDAV_COMPRESS_GOPROXY),y)
+ifeq ($(CONFIG_V2RAY_PLUGIN_COMPRESS_GOPROXY),y)
 	export GO111MODULE=on
 	export GOPROXY=https://goproxy.baidu.com
 endif
 
 define Package/v2ray-plugin
-	SECTION:=net
-	CATEGORY:=Network
-	TITLE:=SIP003 plugin for shadowsocks, based on v2ray
-	URL:=https://github.com/teddysun/v2ray-plugin
-	DEPENDS:=$(GO_ARCH_DEPENDS) +ca-certificates
-endef
-
-define Package/v2ray-plugin/description
-	Yet another SIP003 plugin for shadowsocks, based on v2ray
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=Web Servers/Proxies
+  TITLE:=SIP003 plugin for shadowsocks, based on v2ray
+  URL:=https://github.com/teddysun/v2ray-plugin
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
 endef
 
 define Build/Compile

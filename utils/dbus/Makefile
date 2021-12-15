@@ -20,7 +20,7 @@ PKG_LICENSE:=AFL-2.1
 PKG_CPE_ID:=cpe:/a:freedesktop:dbus
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/dbus/Default
   SECTION:=utils
@@ -72,6 +72,9 @@ $(call Package/dbus/Default/description)
 endef
 
 CMAKE_OPTIONS += \
+	-DDBUS_SYSTEM_SOCKET=/var/run/dbus/system_bus_socket \
+	-DDBUS_SESSION_SOCKET_DIR=/tmp \
+	-DDBUS_SYSTEM_PID_FILE=/var/run/dbus.pid \
 	-DDBUS_BUILD_TESTS=OFF \
 	-DDBUS_LINUX=ON \
 	-DDBUS_DISABLE_ASSERT=ON \
@@ -84,6 +87,8 @@ CMAKE_OPTIONS += \
 	-DDBUS_ENABLE_VERBOSE_MODE=OFF \
 	-DDBUS_DISABLE_CHECKS=ON \
 	-DDBUS_BUILD_X11=OFF \
+	-DDBUS_ENABLE_DOXYGEN_DOCS=OFF \
+	-DENABLE_QT_HELP=OFF
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include

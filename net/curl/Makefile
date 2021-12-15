@@ -8,15 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=curl
-PKG_VERSION:=7.76.0
+PKG_VERSION:=7.80.0
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://dl.uxnr.de/mirror/curl/ \
-	https://curl.mirror.anstey.ca/ \
 	https://curl.askapache.com/download/ \
-	https://curl.haxx.se/download/
-PKG_HASH:=6302e2d75c59cdc6b35ce3fbe716481dd4301841bbb5fd71854653652a014fc8
+	https://curl.se/download/
+PKG_HASH:=a132bd93188b938771135ac7c1f3ac1d3ce507c1fcbef8c471397639214ae2ab
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -77,8 +76,8 @@ include $(INCLUDE_DIR)/package.mk
 define Package/curl/Default
   SECTION:=net
   CATEGORY:=Network
-  URL:=http://curl.haxx.se/
-  MAINTAINER:=Imre Kaloz <kaloz@openwrt.org>
+  URL:=http://curl.se/
+  MAINTAINER:=Stan Grishin <stangri@melmac.ca>
 endef
 
 define Package/curl
@@ -115,7 +114,6 @@ CONFIGURE_ARGS += \
 	--enable-static \
 	--disable-manual \
 	--without-nss \
-	--without-libmetalink \
 	--without-librtmp \
 	--without-libidn \
 	--without-ca-path \

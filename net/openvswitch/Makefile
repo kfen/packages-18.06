@@ -17,7 +17,7 @@ include ./openvswitch.mk
 #
 PKG_NAME:=openvswitch
 PKG_VERSION:=$(ovs_version)
-PKG_RELEASE:=1
+PKG_RELEASE:=10
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.openvswitch.org/releases/
 PKG_HASH:=7d5797f2bf2449c6a266149e88f72123540f7fe7f31ad52902057ae8d8f88c38
@@ -27,7 +27,7 @@ PKG_LICENSE_FILES:=LICENSE
 PKG_CPE_ID:=cpe:/a:openvswitch:openvswitch
 
 PKG_BUILD_DIR:=$(ovs_builddir)
-PKG_BUILD_DEPENDS+=python3/host python-six/host
+PKG_BUILD_DEPENDS+=python3/host
 PKG_USE_MIPS16:=0
 PKG_BUILD_PARALLEL:=1
 PKG_FIXUP:=autoreconf
@@ -40,6 +40,9 @@ include $(INCLUDE_DIR)/package.mk
 include ../../lang/python/python3-host.mk
 include ../../lang/python/python3-package.mk
 
+define Package/openvswitch/config
+source "$(SOURCE)/Config.in"
+endef
 
 ovs_kmod_packages:=
 ovs_kmod_intree_kernel_patchver_min:=3.10
@@ -150,8 +153,11 @@ $(eval $(call OvsKmodPackageTemplate,openvswitch-lisp-intree))
 #
 ovs_libopenvswitch_title:=Open vSwitch (libopenvswitch.so)
 ovs_libopenvswitch_hidden:=1
-ovs_libopenvswitch_depends:=+libopenssl +libunbound +!(arc||arceb):libunwind
+ovs_libopenvswitch_depends:=+libopenssl +!(arc||arceb):libunwind
 ovs_libopenvswitch_depends+=+libatomic
+ifeq ($(CONFIG_OPENVSWITCH_WITH_LIBUNBOUND),y)
+ovs_libopenvswitch_depends+=+libunbound
+endif
 ovs_libopenvswitch_files:=usr/lib/libopenvswitch*.so*
 $(eval $(call OvsPackageTemplate,libopenvswitch))
 
@@ -228,7 +234,7 @@ $(eval $(call OvsPackageTemplate,openvswitch))
 
 ovs_python3_title:=Open vSwitch (Python3 library)
 ovs_python3_hidden:=
-ovs_python3_depends:=+PACKAGE_openvswitch-python3:python3 +PACKAGE_openvswitch-python3:python3-six
+ovs_python3_depends:=+PACKAGE_openvswitch-python3:python3
 define ovs_python3_install
 	$$(INSTALL_DIR) $$(1)$$(PYTHON3_PKG_DIR)
 	$$(CP) $$(PKG_INSTALL_DIR)/usr/share/openvswitch/python/ovs $$(1)$$(PYTHON3_PKG_DIR)
@@ -243,6 +249,7 @@ CONFIGURE_ARGS+= \
 	--disable-silent-rules \
 
 CONFIGURE_VARS += \
+	$(if $(CONFIG_OPENVSWITCH_WITH_LIBUNBOUND),,ac_cv_lib_unbound_ub_ctx_create=no) \
 	ovs_cv_flake8=no \
 	ovs_cv_python3=$(PYTHON3) \
 	ovs_cv_python3_host=$(HOST_PYTHON3_BIN) \

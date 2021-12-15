@@ -1,13 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=kcptun
-PKG_VERSION:=20210103
-PKG_RELEASE:=1
+PKG_VERSION:=20210922
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/xtaci/kcptun/tar.gz/v${PKG_VERSION}?
-PKG_SOURCE_DATE:=2021-01-03
-PKG_HASH:=0821b61b92041b764a1d621f750c1c693d913eed43051d3c109bd303d8f02472
+PKG_SOURCE_DATE:=2021-09-22
+PKG_HASH:=f6a08f0fe75fa85d15f9c0c28182c69a5ad909229b4c230a8cbe38f91ba2d038
 
 PKG_MAINTAINER:=Dengfeng Liu <liudf0716@gmail.com>, Chao Liu <expiron18@gmail.com>
 PKG_LICENSE:=MIT
@@ -19,7 +19,6 @@ PKG_USE_MIPS16:=0
 
 GO_PKG:=github.com/xtaci/kcptun
 
-GO_PKG_LDFLAGS:=-s -w
 GO_PKG_LDFLAGS_X:=main.VERSION=$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
@@ -62,9 +61,6 @@ This package only contains kcptun $(1).
 
   define Package/kcptun-$(1)/install
 		$$(call GoPackage/Package/Install/Bin,$$(PKG_INSTALL_DIR))
-
-		$(STAGING_DIR_HOST)/bin/upx --lzma --best $$(PKG_INSTALL_DIR)/usr/bin/$(1)
-
 
 		$$(INSTALL_DIR) $$(1)/usr/bin
 		$$(INSTALL_BIN) $$(PKG_INSTALL_DIR)/usr/bin/$(1) $$(1)/usr/bin/kcptun-$(1)

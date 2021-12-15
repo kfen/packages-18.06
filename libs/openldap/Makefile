@@ -8,20 +8,27 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openldap
-PKG_VERSION:=2.4.57
-PKG_RELEASE:=1
+PKG_VERSION:=2.6.0
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://gpl.savoirfairelinux.net/pub/mirrors/openldap/openldap-release/ \
 	http://mirror.eu.oneandone.net/software/openldap/openldap-release/ \
 	http://mirror.switch.ch/ftp/software/mirror/OpenLDAP/openldap-release/ \
 	https://www.openldap.org/software/download/OpenLDAP/openldap-release/
-PKG_HASH:=c7ba47e1e6ecb5b436f3d43281df57abeffa99262141aec822628bc220f6b45a
+PKG_HASH:=b71c580eac573e9aba15d95f33dd4dd08f2ed4f0d7fc09e08ad4be7ed1e41a4f
 PKG_LICENSE:=OLDAP-2.8
 PKG_LICENSE_FILES:=LICENSE
 PKG_CPE_ID:=cpe:/a:openldap:openldap
 
 PKG_FIXUP:=autoreconf
+
+# Fixes the following:
+# libtool: Version mismatch error.  This is libtool 2.4.2, but the
+# libtool: definition of this LT_INIT comes from libtool 2.4.6.
+# libtool: You should recreate aclocal.m4 with macros from libtool 2.4.2
+# libtool: and run autoconf again.
+PKG_REMOVE_FILES:=build/ltversion.m4
 
 PKG_CONFIG_DEPENDS := \
         CONFIG_OPENLDAP_DEBUG \
@@ -44,7 +51,7 @@ endef
 define Package/libopenldap
   $(call Package/libopenldap/Default)
   MENU:=1
-  DEPENDS:=+libopenssl +libsasl2 +libpthread +OPENLDAP_DB47:libdb47 +OPENLDAP_ICU:icu
+  DEPENDS:=+libopenssl +libsasl2 +libpthread +libuuid +OPENLDAP_DB47:libdb47 +OPENLDAP_ICU:icu
   TITLE+= (libraries)
 endef
 

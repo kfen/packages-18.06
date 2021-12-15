@@ -25,7 +25,7 @@ PKG_CPE_ID:=cpe:/a:zeromq:libzmq
 CMAKE_BINARY_SUBDIR:=openwrt-build
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/libzmq/default
   TITLE:=ZeroMQ - Message Queue engine
@@ -77,7 +77,6 @@ CMAKE_OPTIONS += \
 	-DA2X_EXECUTABLE=OFF \
 	-DASCIIDOC_EXECUTABLE=OFF \
 	-DBUILD_STATIC=OFF \
-	-DCMAKE_SKIP_INSTALL_RPATH=ON \
 	-DZMQ_HAVE_SOCK_CLOEXEC=ON \
 	-DZMQ_HAVE_SO_KEEPALIVE=ON \
 	-DZMQ_HAVE_TCP_KEEPCNT=ON \

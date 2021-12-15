@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=syncthing
-PKG_VERSION:=1.14.0
+PKG_VERSION:=1.18.2
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=syncthing-source-v$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/syncthing/syncthing/releases/download/v$(PKG_VERSION)
-PKG_HASH:=55a6fb08a9dbc1a31a6b429a16abb3a76d8c24b491a86a52170ddaadea33f683
+PKG_HASH:=afe2ae979da3b4f1af8aeabd7e1704807242913b516e0b6585510821c9d6d4f2
 
 PKG_BUILD_DIR=$(BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)/$(PKG_NAME)
 
@@ -47,10 +47,10 @@ define Package/syncthing
   USERID:=syncthing=499:syncthing=499
 endef
 
-#define Package/syncthing/conffiles
-#/etc/config/syncthing
-#/etc/syncthing
-#endef
+define Package/syncthing/conffiles
+/etc/config/syncthing
+/etc/syncthing
+endef
 
 define Package/syncthing/description
 		Syncthing replaces proprietary sync and cloud services with something
@@ -66,7 +66,8 @@ config SYNCTHING_COMPRESS_GOPROXY
 
 config SYNCTHING_COMPRESS_UPX
 	bool "Compress executable files with UPX"
-	default y
+	depends on !mips64
+	default n
 endef
 
 ifeq ($(CONFIG_SYNCTHING_COMPRESS_GOPROXY),y)
@@ -81,11 +82,11 @@ ifeq ($(CONFIG_SYNCTHING_COMPRESS_UPX),y)
 endif
 endef
 
-#define Package/syncthing/install
-#	$(call GoPackage/Package/Install/Bin,$(1))
-#
-#	$(CP) ./files/* $(1)/
-#endef
+define Package/syncthing/install
+	$(call GoPackage/Package/Install/Bin,$(1))
+
+	$(CP) ./files/* $(1)/
+endef
 
 $(eval $(call GoBinPackage,syncthing))
 $(eval $(call BuildPackage,syncthing))

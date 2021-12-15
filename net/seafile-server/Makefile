@@ -9,13 +9,13 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=seafile-server
 PKG_VERSION:=7.1.5
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/haiwen/seafile-server/tar.gz/v$(PKG_VERSION)-server?
 PKG_HASH:=407a6243f754e366ce6754a2aa643574aa7742d4e81b7cc350dea348f3063707
 
-PKG_MAINTAINER:=Alexandru Ardelean <ardeleanalex@gmail.com>, Jeffery To <jeffery.to@gmail.com>
+PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
 PKG_LICENSE:=AGPL-3.0-only
 PKG_LICENSE_FILES:=LICENSE.txt
 
@@ -46,6 +46,7 @@ define Package/seafile-server
   TITLE:=Seafile server
   URL:=https://seafile.com/
   DEPENDS:= \
+    @BROKEN \
     +bash \
     +glib2 \
     +jansson \
@@ -85,6 +86,7 @@ define Package/seafile-server-fuse
   TITLE:=Seafile server - FUSE extension
   URL:=https://seafile.com/
   DEPENDS:= \
+    @BROKEN \
     +bash \
     +glib2 \
     +jansson \
@@ -117,7 +119,7 @@ define Package/python3-seafile-server
   CATEGORY:=Languages
   SUBMENU:=Python
   TITLE:=Python bindings for Seafile server
-  DEPENDS:=+python3-light +python3-logging +python3-searpc +python3-seafile-ccnet
+  DEPENDS:=@BROKEN +python3-light +python3-logging +python3-searpc +python3-seafile-ccnet
 endef
 
 define Package/python3-seafile-server/description
