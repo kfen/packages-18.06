@@ -8,20 +8,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=cgi-io
-PKG_RELEASE:=19
+PKG_RELEASE:=20
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/cgi-io.git
-PKG_SOURCE_DATE:=2020-10-11
-PKG_SOURCE_VERSION:=d2907bd12986c7b582adcf0f186d97fed399963b
-PKG_MIRROR_HASH:=e4ce1aabfa91e77f562d89afb0ae0aea2e3dd2d3998069819f3412acfc4ed26b
+PKG_SOURCE_DATE:=2021-09-08
+PKG_SOURCE_VERSION:=98cef9dda63623eff07bd574ad7c98ef282af18d
+PKG_MIRROR_HASH:=dfbec859e261ef6851f76474739c19baaadc1e5cd3ae2d2b9d56a7782ac79963
 CMAKE_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_MAINTAINER:=John Crispin <blogic@openwrt.org>
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/cgi-io
   SECTION:=net

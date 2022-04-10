@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=syslog-ng
-PKG_VERSION:=3.31.2
-PKG_RELEASE:=1
+PKG_VERSION:=3.36.1
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_MAINTAINER:=Josef Schlehofer <josef.schlehofer@nic.cz>
 PKG_LICENSE:=LGPL-2.1-or-later GPL-2.0-or-later
@@ -11,16 +11,22 @@ PKG_CPE_ID:=cpe:/a:balabit:syslog-ng
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/syslog-ng/syslog-ng/releases/download/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_HASH:=2eeb8e0dbbcb556fdd4e50bc9f29bc8c66c9b153026f87caa7567bd3139c186a
+PKG_HASH:=90a25c9767fe749db50f118ddfc92ec71399763d2ecd5ad4f11ff5eea049e60b
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1
+
+PKG_BUILD_DEPENDS:= \
+	HOST_OS_MACOS:fakeuname/host \
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_IPV6 \
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
+ifeq ($(CONFIG_HOST_OS_MACOS),y)
+    include ../../utils/fakeuname/fakeuname.mk
+endif
 
 define Package/syslog-ng
   SECTION:=admin
@@ -58,6 +64,7 @@ CONFIGURE_ARGS +=  \
 	--enable-json=yes \
 	--enable-http=yes \
 	--disable-smtp \
+	--disable-mqtt \
 	--disable-redis \
 	--disable-dependency-tracking \
 	--disable-python \
@@ -68,6 +75,7 @@ CONFIGURE_ARGS +=  \
 	--with-mongoc=no
 
 CONFIGURE_VARS += \
+	$(if $(CONFIG_HOST_OS_MACOS),PATH=$(FAKEUNAME_PATH):$(PATH)) \
 	LIBDBI_CFLAGS="-I$(STAGING_DIR)/usr/include"
 
 define Package/syslog-ng/install

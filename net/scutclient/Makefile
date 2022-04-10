@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=scutclient
 PKG_BASE_VERSION:=3.1.2
-PKG_RELEASE:=$(AUTORELESE)
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/scutclient/scutclient.git
@@ -26,7 +26,7 @@ PKG_LICENSE_FILE:=COPYING
 CMAKE_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/scutclient
   SECTION:=net

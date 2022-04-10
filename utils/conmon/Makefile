@@ -1,29 +1,29 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=conmon
-PKG_VERSION:=2.0.27
+PKG_VERSION:=2.1.0
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/containers/$(PKG_NAME)/archive/v$(PKG_VERSION)
-PKG_HASH:=cb953fa418835a3f57af175df3641140d9c44ec219a7ad2efcc07952241f9ea5
+PKG_HASH:=874909d831feac75e452562087f6ea0eb39848ef144397bdd8f0daf579c5ee85
 
-PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>
+PKG_MAINTAINER:=Oskari Rauta <oskari.rauta@gmail.com>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_DEPENDS:=golang/host meson/host
+PKG_BUILD_DEPENDS:=libseccomp
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
-include ../../devel/meson/meson.mk
+include $(INCLUDE_DIR)/meson.mk
 
 define Package/conmon
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Podman conmon
   URL:=https://podman.io
-  DEPENDS:=+glib2 $(INTL_DEPENDS) $(ICONV_DEPENDS)
+  DEPENDS:=@!arc +glib2 $(INTL_DEPENDS) $(ICONV_DEPENDS)
 endef
 
 define Package/conmon/description

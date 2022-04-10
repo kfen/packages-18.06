@@ -5,25 +5,26 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=getdns
-PKG_VERSION:=1.6.0
-PKG_RELEASE:=5
+PKG_VERSION:=1.7.0
+PKG_RELEASE:=2
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
-PKG_MAINTAINER:=Jonathan Underwood <jonathan.underwood@gmail.com>
+PKG_MAINTAINER:=
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://getdnsapi.net/dist/
-PKG_HASH:=40e5737471a3902ba8304b0fd63aa7c95802f66ebbc6eae53c487c8e8a380f4a
+PKG_HASH:=ea8713ce5e077ac76b1418ceb6afd25e6d4e39e9600f6f5e81d3a3a13a60f652
 
 CMAKE_INSTALL:=1
 
 PKG_CONFIG_DEPENDS:= \
+	CONFIG_GETDNS_BUILD_LIBEVENT2 \
 	CONFIG_GETDNS_ENABLE_STUB_ONLY \
 	CONFIG_GETDNS_ENABLE_IDN_LIBIDN2
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/getdns/Default
 	TITLE:=getdns
@@ -35,7 +36,7 @@ define Package/getdns
 	SECTION:=libs
 	CATEGORY:=Libraries
 	TITLE+= (library)
-	DEPENDS+= +libopenssl +!GETDNS_ENABLE_STUB_ONLY:libunbound +GETDNS_ENABLE_IDN_LIBIDN2:libidn2
+	DEPENDS+= +libopenssl +GETDNS_BUILD_LIBEVENT2:libevent2 +!GETDNS_ENABLE_STUB_ONLY:libunbound +GETDNS_ENABLE_IDN_LIBIDN2:libidn2
 	MENU:=1
 endef
 
@@ -51,9 +52,9 @@ endef
 # CMAKE options for GetDNS are described in this document:
 # https://getdnsapi.net/quick-start/cmake-quick-start/
 CMAKE_OPTIONS += -DBUILD_LIBEV=OFF
-CMAKE_OPTIONS += -DBUILD_LIBEVENT2=OFF
 CMAKE_OPTIONS += -DBUILD_LIBUV=OFF
 
+CMAKE_OPTIONS += -DBUILD_LIBEVENT2=$(if $(CONFIG_GETDNS_BUILD_LIBEVENT2),ON,OFF)
 CMAKE_OPTIONS += -DENABLE_STUB_ONLY=$(if $(CONFIG_GETDNS_ENABLE_STUB_ONLY),ON,OFF)
 CMAKE_OPTIONS += -DUSE_LIBIDN2=$(if $(CONFIG_GETDNS_ENABLE_IDN_LIBIDN2),ON,OFF)
 

@@ -7,13 +7,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=filebrowser
-PKG_VERSION:=2.13.0
+PKG_VERSION:=2.21.1
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=e1f6586
+PKG_SOURCE_VERSION:=b73d278
 PKG_SOURCE_URL:=https://github.com/filebrowser/filebrowser
-PKG_MIRROR_HASH:=d2b9af0b58442f2e214a957cef455b9852e34203e813870f6e2166ea7cf407c7
+PKG_MIRROR_HASH:=66b9df31f98bec22715a7fe9ca73962c1e5a5c1b3bcfb99fd0ac1703118ee4c8
 
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
@@ -31,7 +31,7 @@ GO_PKG:=github.com/filebrowser/filebrowser
 GO_PKG_LDFLAGS:=-s -w
 GO_PKG_LDFLAGS_X:= \
 	$(GO_PKG)/v2/version.CommitSHA=$(PKG_SOURCE_VERSION) \
-	$(GO_PKG)/v2/version.Version=$(PKG_VERSION)
+	$(GO_PKG)/v2/version.Version=v$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
@@ -58,12 +58,13 @@ config FILEBROWSER_COMPRESS_GOPROXY
 
 config FILEBROWSER_COMPRESS_UPX
 	bool "Compress executable files with UPX"
-	default y
+	depends on !mips64
+	default n
 endef
 
 ifeq ($(CONFIG_FILEBROWSER_COMPRESS_GOPROXY),y)
 export GO111MODULE=on
-export GOPROXY=https://goproxy.baidu.com
+export GOPROXY=https://goproxy.bj.bcebos.com
 endif
 
 define Build/Compile

@@ -21,7 +21,7 @@ PKG_LICENSE_FILES:=COPYING
 CMAKE_BINARY_SUBDIR:=openwrt-build
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/liblzo
   SECTION:=libs
@@ -39,9 +39,7 @@ endef
 CMAKE_OPTIONS += \
 	-DENABLE_SHARED=ON \
 	-DENABLE_STATIC=ON \
-	\
-	-DBUILD_TESTING=OFF \
-	-DCMAKE_SKIP_INSTALL_RPATH=ON
+	-DBUILD_TESTING=OFF
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include $(1)/usr/lib $(1)/usr/lib/pkgconfig

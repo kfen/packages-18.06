@@ -6,12 +6,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mpd
-PKG_VERSION:=0.22.6
-PKG_RELEASE:=4
+PKG_VERSION:=0.23.5
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://www.musicpd.org/download/mpd/0.22/
-PKG_HASH:=2be149a4895c3cb613477f8cf1193593e3d8a1d38a75ffa7d32da8c8316a4d5e
+PKG_SOURCE_URL:=https://www.musicpd.org/download/mpd/0.23
+PKG_HASH:=f22c2c25093a05f4566f9cd7207cfbcd8405af67ed29a989bcf8905f80b7a299
 
 PKG_MAINTAINER:=
 PKG_LICENSE:=GPL-2.0-or-later
@@ -26,14 +26,14 @@ PKG_USE_MIPS16:=0
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/nls.mk
-include ../../devel/meson/meson.mk
+include $(INCLUDE_DIR)/meson.mk
 
 define Package/mpd/Default
   SECTION:=sound
   CATEGORY:=Sound
   TITLE:=Music Player Daemon
   URL:=https://www.musicpd.org/
-  DEPENDS:= +zlib +libcurl +libpthread +libmpdclient +boost $(ICONV_DEPENDS) \
+  DEPENDS:= +zlib +libcurl +libpthread +libmpdclient +boost $(ICONV_DEPENDS) +libfmt \
             +AUDIO_SUPPORT:alsa-lib +libexpat +libflac +libid3tag +libfaad2 +libopus
   USERID:=mpd:mpd
 endef
@@ -48,8 +48,8 @@ endef
 define Package/mpd-full
 $(call Package/mpd/Default)
   TITLE+= (full)
-  DEPENDS+= +AUDIO_SUPPORT:pulseaudio-daemon +libvorbis +libmms +libupnp +libshout +yajl \
-            +libffmpeg +lame-lib +!BUILD_PATENTED:libmad
+  DEPENDS+= +AUDIO_SUPPORT:pulseaudio-daemon +libvorbis +libmms +libnpupnp +libshout +yajl \
+            +libffmpeg +lame-lib +libsoxr +!BUILD_PATENTED:libmad
   PROVIDES:=mpd
   VARIANT:=full
 endef
@@ -129,7 +129,6 @@ MESON_ARGS += \
 	-Dnfs=disabled \
 	-Dsmbclient=disabled \
 	-Dqobuz=disabled \
-	-Dtidal=disabled \
 	-Dbzip2=disabled \
 	-Diso9660=disabled \
 	-Dzzip=disabled \
@@ -141,10 +140,11 @@ MESON_ARGS += \
 	-Dflac=enabled \
 	-Dfluidsynth=disabled \
 	-Dgme=disabled \
-	-Dmpg123=disabled \
 	-Dmikmod=disabled \
 	-Dmodplug=disabled \
 	-Dmpcdec=disabled \
+	-Dmpg123=disabled \
+	-Dopenmpt=disabled \
 	-Dopus=enabled \
 	-Dsidplay=disabled \
 	-Dsndfile=disabled \
@@ -156,13 +156,14 @@ MESON_ARGS += \
 	-Dshine=disabled \
 	-Dwave_encoder=true \
 	-Dlibsamplerate=disabled \
-	-Dsoxr=disabled \
 	-Dalsa=$(if $(CONFIG_AUDIO_SUPPORT),en,dis)abled \
 	-Dao=disabled \
 	-Dhttpd=true \
 	-Djack=disabled \
 	-Dopenal=disabled \
 	-Doss=disabled \
+	-Dpipewire=disabled \
+	-Dsnapcast=false \
 	-Dsndio=disabled \
 	-Dsolaris_output=disabled \
 	-Ddbus=disabled \
@@ -177,7 +178,7 @@ MESON_ARGS += \
 ifeq ($(BUILD_VARIANT),full)
 
   MESON_ARGS += \
-	-Dupnp=enabled \
+	-Dupnp=npupnp \
 	-Dmms=enabled \
 	-Dsoundcloud=enabled \
 	-Dffmpeg=$(if $(CONFIG_BUILD_PATENTED),en,dis)abled \
@@ -191,7 +192,8 @@ ifeq ($(BUILD_VARIANT),full)
 	-Dshout=enabled \
 	-Dyajl=enabled \
 	-Dvorbisenc=enabled \
-	-Dlame=enabled
+	-Dlame=enabled \
+	-Dsoxr=enabled
 
 ifeq ($(CONFIG_AUDIO_SUPPORT),y)
 	TARGET_LDFLAGS += -Wl,-rpath-link=$(STAGING_DIR)/usr/lib/pulseaudio
@@ -214,7 +216,8 @@ ifeq ($(BUILD_VARIANT),mini)
 	-Dpulse=disabled \
 	-Drecorder=false \
 	-Dshout=disabled \
-	-Dyajl=disabled
+	-Dyajl=disabled \
+	-Dsoxr=disabled
 endif
 
 define Package/mpd/install

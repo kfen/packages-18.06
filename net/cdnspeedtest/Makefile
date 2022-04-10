@@ -1,24 +1,20 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=CloudflareSpeedTest
-PKG_VERSION:=1.4.10
+PKG_VERSION:=2.0.3
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/XIU2/CloudflareSpeedTest/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=17b3cce3dbf76fa98dce1b433ef42e928d486f70d6596012e3dd63530da575b6
+PKG_HASH:=faee35e74a651717e903517369ea0bd67968ba22522a64a34040d9bcd3ca5879
 
-PKG_LICENSE:=GPL-3.0
+PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILE:=LICENSE
-PKG_MAINTAINER:=CN_SZTL <cnsztl@immortalwrt.org>
+PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_CDNSPEEDTEST_COMPRESS_GOPROXY \
@@ -36,11 +32,11 @@ include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
 
 define Package/cdnspeedtest
-	SECTION:=net
-	CATEGORY:=Network
-	TITLE:=Getting the fastest ips to your network of CDN
-	URL:=https://github.com/XIU2/CloudflareSpeedTest
-	DEPENDS:=$(GO_ARCH_DEPENDS)
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=Getting the fastest ips to your network of CDN
+  URL:=https://github.com/XIU2/CloudflareSpeedTest
+  DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
 define Package/cdnspeedtest/config
@@ -50,12 +46,13 @@ config CDNSPEEDTEST_COMPRESS_GOPROXY
 
 config CDNSPEEDTEST_COMPRESS_UPX
 	bool "Compress executable files with UPX"
-	default y
+	depends on !mips64
+	default n
 endef
 
 ifeq ($(CONFIG_CDNSPEEDTEST_COMPRESS_GOPROXY),y)
 	export GO111MODULE=on
-	export GOPROXY=https://goproxy.baidu.com
+	export GOPROXY=https://goproxy.bj.bcebos.com
 endif
 
 define Build/Compile

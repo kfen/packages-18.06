@@ -6,16 +6,16 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=homebridge-config-ui-x
 PKG_NAME:=node-$(PKG_NPM_NAME)
-PKG_VERSION:=4.41.0
+PKG_VERSION:=4.42.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
-                https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
+                https://registry.npmmirror.com/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=0f01f1a97079eafa80d840ac88fde97ee2067510291647316fb5b654311ebe48
+PKG_HASH:=d81c3eefb1f6b4a092ee14036ed5568592bd962c327f5ac69a8eece421200adc
 
-PKG_BUILD_DEPENDS:=node/host
+PKG_BUILD_DEPENDS:=node/host node-clean-modules/host
 PKG_USE_MIPS16:=0
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
@@ -30,7 +30,7 @@ define Package/node-homebridge-config-ui-x
   CATEGORY:=Languages
   TITLE:=Homebridge Config UI X
   URL:=https://www.npmjs.org/package/homebridge-config-ui-x
-  DEPENDS:=+node +node-homebridge +sudo +node-pty-prebuilt-multiarch
+  DEPENDS:=+node +node-homebridge +sudo +node-pty-prebuilt-multiarch +node-bufferutil +node-utf-8-validate
 endef
 
 define Package/node-homebridge-config-ui-x/description
@@ -43,8 +43,9 @@ define Package/node-homebridge-config-ui-x/description
  *** The hb-service command is not full compatible with the openwrt environment. ***
  *** You can edit config.json using the Homebridge Config UI X. ***
 
-      See: https://github.com/oznu/homebridge-config-ui-x#configuration
-           https://github.com/oznu/homebridge-config-ui-x#logs-from-custom-command
+      See: https://github.com/oznu/homebridge-config-ui-x/wiki/Manual-Configuration
+           https://github.com/oznu/homebridge-config-ui-x/wiki/Manual-Configuration#logs-from-custom-command
+           https://github.com/oznu/homebridge-config-ui-x/wiki/Manual-Configuration#sudo-mode
 
         "platforms": [
             {
@@ -71,27 +72,32 @@ TARGET_CFLAGS+=$(FPIC)
 TARGET_CPPFLAGS+=$(FPIC)
 
 define Build/Compile
+	cd $(PKG_BUILD_DIR); \
 	$(MAKE_VARS) \
 	$(MAKE_FLAGS) \
-	npm_config_arch=$(NODEJS_CPU) \
-	npm_config_target_arch=$(NODEJS_CPU) \
-	npm_config_build_from_source=true \
 	npm_config_nodedir=$(STAGING_DIR)/usr/ \
-	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g $(PKG_BUILD_DIR)
+	npm install --production --global-style --no-save --omit=dev --no-package-lock --prefer-dedupe
+	rm -rf $(PKG_BUILD_DIR)/node_modules/fastify/node_modules/light-my-request/node_modules/ajv/lib
+	rm -rf $(PKG_BUILD_DIR)/node_modules/@nestjs/platform-fastify/node_modules/light-my-request/node_modules/ajv/lib
+	rm -rf $(PKG_BUILD_DIR)/node_modules/node-schedule/node_modules/moment/min
+	rm -rf $(PKG_BUILD_DIR)/node_modules/node-schedule/node_modules/moment/src
+	rm -rf $(PKG_BUILD_DIR)/node_modules/node-schedule/node_modules/moment/locale
+	clean-modules -y -D $(PKG_BUILD_DIR)/node_modules --exclude "**/*.png" "**/example/" "**/examples/"
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
+	rm -f $(PKG_BUILD_DIR)/node_modules/.package-lock.json
+	find $(PKG_BUILD_DIR)/node_modules -type d -empty -delete || true
 endef
 
 define Package/node-homebridge-config-ui-x/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{*.json,*.md} \
+	$(CP) $(PKG_BUILD_DIR)/{*.json,*.md} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,dist,public} \
+	$(CP) $(PKG_BUILD_DIR)/{node_modules,dist,public} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{LICENSE,*.js} \
+	$(CP) $(PKG_BUILD_DIR)/{LICENSE,*.js} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) ../lib/node/$(PKG_NPM_NAME)/dist/bin/hb-service.js $(1)/usr/bin/hb-service
@@ -99,6 +105,8 @@ define Package/node-homebridge-config-ui-x/install
 	$(CP) ./files/openwrt.js $(1)/usr/lib/node/$(PKG_NPM_NAME)/dist/bin/platforms/
 	$(INSTALL_DIR) $(1)/usr/lib/node_modules
 	$(LN) ../node/$(PKG_NPM_NAME) $(1)/usr/lib/node_modules/$(PKG_NPM_NAME)
+	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/dist/bin/hb-service.js
+	chmod +x $(1)/usr/lib/node/$(PKG_NPM_NAME)/dist/bin/standalone.js
 endef
 
 define Package/node-homebridge-config-ui-x/postrm

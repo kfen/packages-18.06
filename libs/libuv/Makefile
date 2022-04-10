@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libuv
-PKG_VERSION:=1.41.0
+PKG_VERSION:=1.44.1
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-v$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://dist.libuv.org/dist/v$(PKG_VERSION)/
-PKG_HASH:=1184533907e1ddad9c0dcd30a5abb0fe25288c287ff7fee303fff7b9b2d6eb6e
+PKG_HASH:=9d37b63430fe3b92a9386b949bebd8f0b4784a39a16964c82c9566247a76f64a
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)-v$(PKG_VERSION)
 
-PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
+PKG_MAINTAINER:=Marko Ratkaj <markoratkaj@gmail.com>
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE
 PKG_CPE_ID:=cpe:/a:libuv_project:libuv
@@ -24,7 +24,7 @@ PKG_CPE_ID:=cpe:/a:libuv_project:libuv
 CMAKE_BINARY_SUBDIR:=out/cmake
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/libuv
   SECTION:=libs

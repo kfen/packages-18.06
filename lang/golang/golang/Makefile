@@ -7,8 +7,8 @@
 
 include $(TOPDIR)/rules.mk
 
-GO_VERSION_MAJOR_MINOR:=1.16
-GO_VERSION_PATCH:=3
+GO_VERSION_MAJOR_MINOR:=1.18
+GO_VERSION_PATCH:=
 
 PKG_NAME:=golang
 PKG_VERSION:=$(GO_VERSION_MAJOR_MINOR)$(if $(GO_VERSION_PATCH),.$(GO_VERSION_PATCH))
@@ -17,11 +17,11 @@ PKG_RELEASE:=1
 GO_SOURCE_URLS:=https://dl.google.com/go/ \
                 https://mirrors.ustc.edu.cn/golang/ \
                 https://mirrors.nju.edu.cn/golang/ \
-                https://golang.org/dl/
+                https://go.dev/dl/
 
 PKG_SOURCE:=go$(PKG_VERSION).src.tar.gz
 PKG_SOURCE_URL:=$(GO_SOURCE_URLS)
-PKG_HASH:=b298d29de9236ca47a023e382313bcc2d2eed31dfa706b60a04103ce83a71a25
+PKG_HASH:=38f423db4cc834883f2b52344282fa7a39fbb93650dc62a11fdf0be6409bdad6
 
 PKG_MAINTAINER:=Jeffery To <jeffery.to@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
@@ -50,9 +50,9 @@ HOST_GO_VALID_OS_ARCH:= \
   linux_386    linux_amd64    linux_arm    linux_arm64 \
   openbsd_386  openbsd_amd64  openbsd_arm  openbsd_arm64 \
   netbsd_386   netbsd_amd64   netbsd_arm   netbsd_arm64 \
+  windows_386  windows_amd64  windows_arm  windows_arm64 \
   \
   plan9_386    plan9_amd64    plan9_arm \
-  windows_386  windows_amd64  windows_arm \
   \
   darwin_amd64 darwin_arm64 \
   ios_amd64    ios_arm64 \
@@ -107,7 +107,7 @@ endif
 define Package/golang/Default
 $(call GoPackage/GoSubMenu)
   TITLE:=Go programming language
-  URL:=https://golang.org/
+  URL:=https://go.dev/
   DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
@@ -263,10 +263,13 @@ $(eval $(call GoCompiler/AddProfile,Package,$(PKG_BUILD_DIR),$(PKG_GO_PREFIX),$(
 
 PKG_GO_ZBOOTSTRAP_MODS:= \
 	s/defaultGO386 = `[^`]*`/defaultGO386 = `$(or $(GO_386),sse2)`/; \
+	s/defaultGOAMD64 = `[^`]*`/defaultGOAMD64 = `$(or $(GO_AMD64),v1)`/; \
 	s/defaultGOARM = `[^`]*`/defaultGOARM = `$(or $(GO_ARM),5)`/; \
 	s/defaultGOMIPS = `[^`]*`/defaultGOMIPS = `$(or $(GO_MIPS),hardfloat)`/; \
 	s/defaultGOMIPS64 = `[^`]*`/defaultGOMIPS64 = `$(or $(GO_MIPS64),hardfloat)`/; \
-	s/defaultGOPPC64 = `[^`]*`/defaultGOPPC64 = `power8`/;
+	s/defaultGOPPC64 = `[^`]*`/defaultGOPPC64 = `$(or $(GO_PPC64),power8)`/;
+
+PKG_GO_ZBOOTSTRAP_PATH:=$(PKG_BUILD_DIR)/src/internal/buildcfg/zbootstrap.go
 
 PKG_GO_VARS= \
 	GOCACHE="$(GO_BUILD_CACHE_DIR)" \
@@ -310,8 +313,17 @@ define Build/Compile
 		$(PKG_GO_VARS) \
 	)
 
-	$(SED) '$(PKG_GO_ZBOOTSTRAP_MODS)' \
-		"$(PKG_BUILD_DIR)/src/cmd/internal/objabi/zbootstrap.go"
+	$(SED) '$(PKG_GO_ZBOOTSTRAP_MODS)' "$(PKG_GO_ZBOOTSTRAP_PATH)"
+
+	( \
+		if echo 'int main() { return 0; }' | $(TARGET_CC) -o $(PKG_BUILD_DIR)/test-ldso -x c - > /dev/null 2>&1; then \
+			LDSO=$$$$( \
+				readelf -l $(PKG_BUILD_DIR)/test-ldso | \
+				sed -n -e 's/^.*interpreter: \(.*\)[]]/\1/p' \
+			) ; \
+		fi ; \
+		$(SED) "s,defaultGO_LDSO = \`[^\`]*\`,defaultGO_LDSO = \`$$$$LDSO\`," "$(PKG_GO_ZBOOTSTRAP_PATH)" ; \
+	)
 
 	@echo "Building target Go second stage"
 

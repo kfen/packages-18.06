@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
-PKG_VERSION:=5.9.2
-PKG_RELEASE:=2
+PKG_VERSION:=5.9.5
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://download.strongswan.org/ https://download2.strongswan.org/
-PKG_HASH:=61c72f741edb2c1295a7b7ccce0317a104b3f9d39efd04c52cd05b01b55ab063
+PKG_HASH:=983e4ef4a4c6c9d69f5fe6707c7fe0b2b9a9291943bbf4e008faab6bf91c0bdd
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_MAINTAINER:=Philip Prindeville <philipp@redfish-solutions.com>, Noel Kuntze <noel.kuntze@thermi.consulting>
 PKG_CPE_ID:=cpe:/a:strongswan:strongswan
@@ -248,7 +248,6 @@ $(call Package/strongswan/Default)
   TITLE+= (default)
   DEPENDS:= strongswan \
 	+strongswan-charon \
-	+strongswan-ipsec \
 	+strongswan-mod-aes \
 	+strongswan-mod-attr \
 	+strongswan-mod-connmark \
@@ -273,11 +272,11 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-sha2 \
 	+strongswan-mod-socket-default \
 	+strongswan-mod-sshkey \
-	+strongswan-mod-stroke \
 	+strongswan-mod-updown \
 	+strongswan-mod-x509 \
 	+strongswan-mod-xauth-generic \
-	+strongswan-mod-xcbc
+	+strongswan-mod-xcbc \
+	+strongswan-swanctl
 endef
 
 define Package/strongswan-default/description
@@ -416,6 +415,17 @@ endef
 define Package/strongswan-swanctl/description
 $(call Package/strongswan/description/Default)
  This package contains the swanctl utility.
+endef
+
+define Package/strongswan-gencerts
+$(call Package/strongswan/Default)
+  TITLE+= X.509 certificate generation utility
+  DEPENDS:= strongswan +strongswan-pki bash
+endef
+
+define Package/strongswan-gencerts/description
+$(call Package/strongswan/description/Default)
+ This package contains the X.509 certificate generation utility.
 endef
 
 define Package/strongswan-libtls
@@ -562,6 +572,7 @@ define Package/strongswan-scepclient/install
 endef
 
 define Package/strongswan-swanctl/conffiles
+/etc/config/ipsec
 /etc/swanctl/
 endef
 
@@ -574,6 +585,11 @@ define Package/strongswan-swanctl/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/swanctl $(1)/usr/sbin/
 	$(INSTALL_BIN) ./files/swanctl.init $(1)/etc/init.d/swanctl
+endef
+
+define Package/strongswan-gencerts/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) ./files/gencerts.sh $(1)/usr/bin/gencerts
 endef
 
 define Package/strongswan-libtls/install
@@ -599,14 +615,7 @@ define Plugin/attr-sql/install
 endef
 
 define Plugin/stroke/install
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/aacerts
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/acerts
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/cacerts
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/certs
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/crls
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/ocspcerts
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/private
-	$(INSTALL_DIR) $(1)/etc/ipsec.d/reqs
+	$(INSTALL_DIR) $(1)/etc/ipsec.d/{aacerts,acerts,cacerts,certs,crls,ocspcerts,private,reqs}
 
 	$(INSTALL_DIR) $(1)/usr/lib/ipsec/plugins
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/ipsec/{starter,stroke} $(1)/usr/lib/ipsec/
@@ -651,6 +660,7 @@ $(eval $(call BuildPackage,strongswan-libnttfft))
 $(eval $(call BuildPackage,strongswan-pki))
 $(eval $(call BuildPackage,strongswan-scepclient))
 $(eval $(call BuildPackage,strongswan-swanctl))
+$(eval $(call BuildPackage,strongswan-gencerts))
 $(eval $(call BuildPackage,strongswan-libtls))
 $(eval $(call BuildPlugin,addrblock,RFC 3779 address block constraint support,))
 $(eval $(call BuildPlugin,aes,AES crypto,))

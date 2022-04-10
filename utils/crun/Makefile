@@ -1,14 +1,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=crun
-PKG_VERSION:=0.18
+PKG_VERSION:=1.4.2
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/containers/crun.git
-PKG_SOURCE_DATE:=2021-03-18
-PKG_SOURCE_VERSION:=496e81bdd69f117f10e4477e4204e4611a94b68f
-PKG_MIRROR_HASH:=26941b0d84bbeabeb5e982af48d131f55d0aa16f4a2f2ca3279a5c812cdeea8b
+PKG_SOURCE_DATE:=2022-03-02
+PKG_SOURCE_VERSION:=c677a1cfc04f24499513a743b828a8d9db6d95ce
+PKG_MIRROR_HASH:=7f5084aac03afa7685ea240e8e47551c42cfa40a33e5ced5ef40cb0c3f587fb6
 
 PKG_BUILD_DEPENDS:=argp-standalone
 PKG_BUILD_PARALLEL:=1
@@ -74,8 +74,7 @@ define Package/crun/install
 endef
 
 define Build/InstallDev
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/crun $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libcrun.* $(1)/usr/lib/
 endef
 

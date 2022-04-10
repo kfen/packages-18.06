@@ -1,20 +1,16 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gotop
-PKG_VERSION:=4.1.1
+PKG_VERSION:=4.1.3
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/xxxserxxx/gotop/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=314dcfc4b0faa0bb735e5fa84b2406492bf94f7948af43e2b9d2982d69d542ed
+PKG_HASH:=c0a02276e718b988d1220dc452063759c8634d42e1c01a04c021486c1e61612d
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILE:=LICENSE
@@ -36,16 +32,15 @@ include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
 
 define Package/gotop
-	SECTION:=admin
-	CATEGORY:=Administration
-	TITLE:=A terminal based graphical activity monitor
-	URL:=https://github.com/xxxserxxx/gotop
-	DEPENDS:=$(GO_ARCH_DEPENDS)
+  SECTION:=admin
+  CATEGORY:=Administration
+  TITLE:=A terminal based graphical activity monitor
+  URL:=https://github.com/xxxserxxx/gotop
+  DEPENDS:=$(GO_ARCH_DEPENDS)
 endef
 
 define Package/gotop/description
-	Another terminal based graphical activity monitor,
-	inspired by gtop and vtop, this time written in Go!
+  Another terminal based graphical activity monitor.
 endef
 
 define Package/gotop/config
@@ -55,12 +50,13 @@ config GOTOP_COMPRESS_GOPROXY
 
 config GOTOP_COMPRESS_UPX
 	bool "Compress executable files with UPX"
-	default y
+	depends on !mips64
+	default n
 endef
 
 ifeq ($(CONFIG_GOTOP_COMPRESS_GOPROXY),y)
 	export GO111MODULE=on
-	export GOPROXY=https://goproxy.baidu.com
+	export GOPROXY=https://goproxy.bj.bcebos.com
 endif
 
 define Build/Compile

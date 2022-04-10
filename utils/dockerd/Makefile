@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dockerd
-PKG_VERSION:=20.10.5
-PKG_RELEASE:=1
+PKG_VERSION:=20.10.12
+PKG_RELEASE:=$(AUTORELEASE)
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
@@ -10,8 +10,8 @@ PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_GIT_URL:=github.com/moby/moby
 PKG_GIT_REF:=v$(PKG_VERSION)
 PKG_SOURCE_URL:=https://codeload.$(PKG_GIT_URL)/tar.gz/$(PKG_GIT_REF)?
-PKG_HASH:=bcf651d75e5c80421e8cd3b0d47f3425e01047cf67aef0eda83b68776905a583
-PKG_GIT_SHORT_COMMIT:=363e9a8 # SHA1 used within the docker executables
+PKG_HASH:=a8ee80d31c7b74f687a837cd2a8570578f118179fba0844c5ee88f90fe180155
+PKG_GIT_SHORT_COMMIT:=459d0df # SHA1 used within the docker executables
 
 PKG_MAINTAINER:=Gerard Ryan <G.M0N3Y.2503@gmail.com>
 
@@ -34,15 +34,15 @@ define Package/dockerd
   TITLE:=Docker Community Edition Daemon
   URL:=https://www.docker.com/
   DEPENDS:=$(GO_ARCH_DEPENDS) +btrfs-progs +ca-certificates +containerd +libdevmapper +libnetwork +tini \
-           +KERNEL_SECCOMP:libseccomp +iptables-mod-extra +kmod-br-netfilter +kmod-ikconfig +kmod-nf-conntrack-netlink +kmod-nf-ipvs \
-           +kmod-nf-nat +kmod-veth
+           +@KERNEL_NAMESPACES +KERNEL_SECCOMP:libseccomp +iptables-mod-extra +kmod-br-netfilter +kmod-ikconfig \
+           +kmod-nf-conntrack-netlink +kmod-nf-ipvs +kmod-nf-nat +kmod-veth
   USERID:=docker:docker
   MENU:=1
 endef
 
-#define Package/dockerd/conffiles
-#/etc/config/dockerd
-#endef
+define Package/dockerd/conffiles
+/etc/config/dockerd
+endef
 
 define Package/dockerd/description
 The Docker CE Engine.
@@ -124,11 +124,11 @@ define Package/dockerd/install
 	$(INSTALL_DIR) $(1)/etc/docker
 	$(INSTALL_CONF) ./files/daemon.json $(1)/etc/docker/
 
-	#$(INSTALL_DIR) $(1)/etc/init.d
-	#$(INSTALL_BIN) ./files/dockerd.init $(1)/etc/init.d/dockerd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/dockerd.init $(1)/etc/init.d/dockerd
 
-	#$(INSTALL_DIR) $(1)/etc/config
-	#$(INSTALL_CONF) ./files/etc/config/dockerd $(1)/etc/config/dockerd
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/etc/config/dockerd $(1)/etc/config/dockerd
 
 	# Must be after systcl 11-br-netfilter.conf from kmod-br-netfilter
 	$(INSTALL_DIR) $(1)/etc/sysctl.d
@@ -136,22 +136,22 @@ define Package/dockerd/install
 		$(1)/etc/sysctl.d/12-br-netfilter-ip.conf
 endef
 
-#define Package/dockerd/postinst
-##!/bin/sh
-#[ -n "$$IPKG_INSTROOT" ] || {
-#	/etc/init.d/dockerd enable
-#	/etc/init.d/dockerd uciadd
-#	/etc/init.d/dockerd start
-#}
-#endef
+define Package/dockerd/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	/etc/init.d/dockerd enable
+	/etc/init.d/dockerd uciadd
+	/etc/init.d/dockerd start
+}
+endef
 
-#define Package/dockerd/prerm
-##!/bin/sh
-#[ -n "$$IPKG_INSTROOT" ] || {
-#	/etc/init.d/dockerd disable
-#	/etc/init.d/dockerd stop
-#	/etc/init.d/dockerd ucidel
-#}
-#endef
+define Package/dockerd/prerm
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	/etc/init.d/dockerd disable
+	/etc/init.d/dockerd stop
+	/etc/init.d/dockerd ucidel
+}
+endef
 
 $(eval $(call BuildPackage,dockerd))

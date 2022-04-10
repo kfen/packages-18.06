@@ -7,12 +7,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=shairport-sync
-PKG_VERSION:=3.3.7
-PKG_RELEASE:=1
+PKG_VERSION:=3.3.9
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/mikebrady/shairport-sync/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=7f8d4ecec53f2f681a962467bf09205568fc936c8c31a9ee07b1bd72d3d95b12
+PKG_HASH:=17990cb2620551caa07a1c3b371889e55803071eaada04e958c356547a7e1795
 
 PKG_MAINTAINER:=Ted Hess <thess@kitschensync.net>, \
 		Mike Brady <mikebrady@eircom.net>
@@ -78,6 +78,7 @@ endef
 CONFIGURE_ARGS += \
 	--with-alsa \
 	--with-apple-alac \
+	--with-libdaemon \
 	--with-metadata
 
 ifeq ($(BUILD_VARIANT),openssl)

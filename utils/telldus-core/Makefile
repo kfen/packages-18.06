@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=telldus-core
 PKG_VERSION:=2.1.2
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://download.telldus.com/TellStick/Software/telldus-core/
@@ -21,7 +21,7 @@ CMAKE_INSTALL:=1
 PKG_BUILD_DEPENDS:=argp-standalone
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/telldus-core
 	SECTION:=utils

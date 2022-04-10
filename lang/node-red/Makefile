@@ -6,20 +6,20 @@ include $(TOPDIR)/rules.mk
 
 PKG_NPM_NAME:=node-red
 PKG_NAME:=$(PKG_NPM_NAME)
-PKG_VERSION:=1.2.9
+PKG_VERSION:=2.2.2
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NPM_NAME)-$(PKG_VERSION).tgz
 PKG_SOURCE_URL:=https://mirrors.tencent.com/npm/$(PKG_NPM_NAME)/-/ \
-                https://registry.npm.taobao.org/$(PKG_NPM_NAME)/-/ \
+                https://registry.npmmirror.com/$(PKG_NPM_NAME)/-/ \
                 https://registry.npmjs.org/$(PKG_NPM_NAME)/-/
-PKG_HASH:=ce7984f40a9bbb8342faeaefc8d863de4807ddf84953078d459e8b7209a8ca4d
+PKG_HASH:=d3b5c6a081b05fd92c32a1de19bf3a7d5c40c3b701ce1e35f7bcc960e1d367e9
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE
 
-PKG_BUILD_DEPENDS:=node/host
+PKG_BUILD_DEPENDS:=node/host node-clean-modules/host
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
 
@@ -52,27 +52,31 @@ define Package/node-red/conffiles
 endef
 
 define Build/Compile
+	cd $(PKG_BUILD_DIR); \
 	$(MAKE_VARS) \
 	$(MAKE_FLAGS) \
-	npm_config_arch=$(NODEJS_CPU) \
-	npm_config_target_arch=$(NODEJS_CPU) \
-	npm_config_build_from_source=true \
 	npm_config_nodedir=$(STAGING_DIR)/usr/ \
-	npm_config_prefix=$(PKG_INSTALL_DIR)/usr/ \
 	npm_config_cache=$(TMP_DIR)/npm-cache-$(TMPNPM) \
 	npm_config_tmp=$(TMP_DIR)/npm-tmp-$(TMPNPM) \
-	npm install -g --no-optional $(PKG_BUILD_DIR)
+	npm install --production --global-style --no-save --omit=dev --no-package-lock --omit=optional --no-optional --prefer-dedupe
+	clean-modules -y -D $(PKG_BUILD_DIR)/node_modules --exclude "**/*.png" "**/example/" "**/examples/"
+	#rm -rf $(PKG_BUILD_DIR)/node_modules/@node-red/nodes/node_modules/ajv/lib
+	rm -rf $(PKG_BUILD_DIR)/node_modules/@node-red/util/node_modules/moment/min
+	rm -rf $(PKG_BUILD_DIR)/node_modules/@node-red/util/node_modules/moment/src
+	rm -rf $(PKG_BUILD_DIR)/node_modules/@node-red/util/node_modules/moment/locale
 	rm -rf $(TMP_DIR)/npm-tmp-$(TMPNPM)
 	rm -rf $(TMP_DIR)/npm-cache-$(TMPNPM)
+	rm -f $(PKG_BUILD_DIR)/node_modules/.package-lock.json
+	find $(PKG_BUILD_DIR)/node_modules -type d -empty -delete || true
 endef
 
 define Package/node-red/install
 	$(INSTALL_DIR) $(1)/usr/lib/node/$(PKG_NPM_NAME)
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{package.json,LICENSE} \
+	$(CP) $(PKG_BUILD_DIR)/{package.json,LICENSE} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{*.md,*.js} \
+	$(CP) $(PKG_BUILD_DIR)/{*.md,*.js} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/$(PKG_NPM_NAME)/{node_modules,bin,lib} \
+	$(CP) $(PKG_BUILD_DIR)/{node_modules,bin,lib} \
 		$(1)/usr/lib/node/$(PKG_NPM_NAME)/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) ../lib/node/$(PKG_NPM_NAME)/red.js $(1)/usr/bin/node-red

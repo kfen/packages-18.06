@@ -9,12 +9,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lxc
-PKG_VERSION:=4.0.5
-PKG_RELEASE:=2
+PKG_VERSION:=4.0.12
+PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://linuxcontainers.org/downloads/lxc/
-PKG_HASH:=af2cd616d5ab689e5d2305361c6571b5e632afd7eaab1754cca1670446a2e6a4
+PKG_HASH:=db242f8366fc63e8c7588bb2017b354173cf3c4b20abc18780debdc48b14d3ef
 
 PKG_MAINTAINER:=Marko Ratkaj <marko.ratkaj@sartura.hr>
 PKG_LICENSE:=LGPL-2.1-or-later BSD-2-Clause GPL-2.0
@@ -39,7 +39,7 @@ LXC_SCRIPTS += \
 
 DEPENDS_APPLETS = +libpthread +libcap +liblxc
 
-DEPENDS_create = +lxc-configs +lxc-hooks +lxc-templates +flock
+DEPENDS_create = +lxc-configs +lxc-hooks +lxc-templates +flock +getopt
 
 define Package/lxc/Default
   SECTION:=utils

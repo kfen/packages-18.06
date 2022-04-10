@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libxml2
-PKG_VERSION:=2.9.10
-PKG_RELEASE:=3
+PKG_VERSION:=2.9.13
+PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=http://xmlsoft.org/sources/
-PKG_HASH:=aafee193ffb8fe0c82d4afef6ef91972cbaf5feea100edc2f262750611b4be1f
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_SOURCE_URL:=@GNOME/libxml2/$(basename $(PKG_VERSION))
+PKG_HASH:=276130602d12fe484ecc03447ee5e759d0465558fbc9d6bd144e3745306ebf0e
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=COPYING
@@ -103,8 +103,9 @@ CONFIGURE_ARGS += \
 	--without-lzma
 
 HOST_CONFIGURE_ARGS += \
-	--enable-shared \
+	--disable-shared \
 	--enable-static \
+	--with-pic \
 	--with-c14n \
 	--without-catalog \
 	--with-debug \

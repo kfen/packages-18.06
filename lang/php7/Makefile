@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=php
-PKG_VERSION:=7.4.16
+PKG_VERSION:=7.4.26
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Michael Heimpold <mhei@heimpold.de>
@@ -16,7 +16,7 @@ PKG_CPE_ID:=cpe:/a:php:php
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=http://www.php.net/distributions/
-PKG_HASH:=1c16cefaf88ded4c92eed6a8a41eb682bb2ef42429deb55f1c4ba159053fb98b
+PKG_HASH:=e305b3aafdc85fa73a81c53d3ce30578bc94d1633ec376add193a1e85e0f0ef8
 
 PKG_BUILD_PARALLEL:=1
 PKG_USE_MIPS16:=0
@@ -174,6 +174,10 @@ CONFIGURE_ARGS+= \
 	--without-valgrind \
 	--with-external-pcre \
 	--with-zlib="$(STAGING_DIR)/usr"
+
+ifeq ($(CONFIG_LIBC_USE_GLIBC),y)
+TARGET_LDFLAGS += -ldl
+endif
 
 ifneq ($(SDK)$(CONFIG_PACKAGE_php7-mod-bcmath),)
   CONFIGURE_ARGS+= --enable-bcmath=shared
@@ -528,6 +532,26 @@ define Package/php7-fpm/conffiles
 /etc/config/php7-fpm
 endef
 
+define Package/php7-mod-openssl/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	if [ -e "/etc/php7/20_openssl.ini" ] && [ -e "/etc/php7/15_openssl.ini" ]; then
+		echo "Renaming PHP ini file '/etc/php7/20_openssl.ini' -> '/etc/php7/15_openssl.ini'"
+		mv /etc/php7/20_openssl.ini /etc/php7/15_openssl.ini
+	fi
+}
+endef
+
+define Package/php7-mod-mysqli/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || {
+	if [ -e "/etc/php7/20_mysqli.ini" ] && [ -e "/etc/php7/30_mysqli.ini" ]; then
+		echo "Renaming PHP ini file '/etc/php7/20_mysqli.ini' -> '/etc/php7/30_mysqli.ini'"
+		mv /etc/php7/20_mysqli.ini /etc/php7/30_mysqli.ini
+	fi
+}
+endef
+
 define Build/Prepare
 	$(call Build/Prepare/Default)
 	$(if $(QUILT),,( cd $(PKG_BUILD_DIR); touch configure.ac; ./buildconf --force ))
@@ -606,7 +630,7 @@ $(eval $(call BuildModule,gd,GD graphics,+PACKAGE_php7-mod-gd:libgd-full))
 $(eval $(call BuildModule,gettext,Gettext,+PACKAGE_php7-mod-gettext:libintl-full))
 $(eval $(call BuildModule,gmp,GMP,+PACKAGE_php7-mod-gmp:libgmp))
 $(eval $(call BuildModule,iconv,iConv,$(ICONV_DEPENDS)))
-$(eval $(call BuildModule,imap,IMAP,+PACKAGE_php7-mod-imap:libopenssl +PACKAGE_libpam:libpam +PACKAGE_php7-mod-imap:uw-imap))
+$(eval $(call BuildModule,imap,IMAP,+PACKAGE_php7-mod-imap:libopenssl +libpam +PACKAGE_php7-mod-imap:uw-imap))
 $(eval $(call BuildModule,intl,Internationalization Functions,+PACKAGE_php7-mod-intl:icu +PHP7_FULLICUDATA:icu-full-data))
 $(eval $(call BuildModule,json,JSON))
 $(eval $(call BuildModule,ldap,LDAP,+PACKAGE_php7-mod-ldap:libopenldap +PACKAGE_php7-mod-ldap:libsasl2))

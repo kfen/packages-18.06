@@ -1,21 +1,18 @@
+# SPDX-License-Identifier: GPL-3.0-only
 #
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=brook
-PKG_VERSION:=20210401
+PKG_VERSION:=20220406
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/txthinking/brook/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=6229b2f0b53d94acb873e246d10f2a4662af2a031a03e7fb5c3befffcd998731
+PKG_HASH:=cf4433263cc755edfe56be66d206b7ee5083faaaa8b30bb4102174ad73e22764
 
-PKG_MAINTAINER:=CN_SZTL <cnsztl@immortalwrt.org>
+PKG_MAINTAINER:=Tianling Shen <cnsztl@immortalwrt.org>
 PKG_LICENSE:=GPL-3.0
 PKG_LICENSE_FILES:=LICENSE
 
@@ -35,17 +32,17 @@ include $(INCLUDE_DIR)/package.mk
 include ../../lang/golang/golang-package.mk
 
 define Package/brook
-	SECTION:=net
-	CATEGORY:=Network
-	SUBMENU:=Web Servers/Proxies
-	TITLE:=A cross-platform proxy software
-	DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
-	URL:=https://github.com/txthinking/brook
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=Web Servers/Proxies
+  TITLE:=A cross-platform proxy software
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle
+  URL:=https://github.com/txthinking/brook
 endef
 
 define Package/brook/description
-	Brook is a cross-platform strong encryption and not detectable proxy.
-	Zero-Configuration.
+  Brook is a cross-platform strong encryption and not detectable proxy.
+  Zero-Configuration.
 endef
 
 define Package/brook/config
@@ -55,12 +52,13 @@ define Package/brook/config
 
 	config BROOK_COMPRESS_UPX
 		bool "Compress executable files with UPX"
-		default y
+		depends on !mips64
+		default n
 endef
 
 ifeq ($(CONFIG_BROOK_COMPRESS_GOPROXY),y)
 	export GO111MODULE=on
-	export GOPROXY=https://goproxy.baidu.com
+	export GOPROXY=https://goproxy.bj.bcebos.com
 endif
 
 define Build/Compile

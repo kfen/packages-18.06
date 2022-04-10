@@ -13,7 +13,7 @@ PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
-include ../../devel/ninja/ninja-cmake.mk
+include $(INCLUDE_DIR)/cmake.mk
 
 define Package/mbusd
 	SECTION:=net
@@ -37,6 +37,10 @@ define Package/mbusd/install
 	$(INSTALL_DATA) ./files/mbusd.conf $(1)/etc/config/mbusd
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/mbusd.init $(1)/etc/init.d/mbusd
+endef
+
+define Package/mbusd/conffiles
+/etc/config/mbusd
 endef
 
 $(eval $(call BuildPackage,mbusd))

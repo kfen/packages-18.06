@@ -6,28 +6,28 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=node
 
-ifeq ($(CONFIG_NODEJS_10),y)
-PKG_VERSION:=v10.24.1
+ifeq ($(CONFIG_NODEJS_16),y)
+PKG_VERSION:=v16.14.2
 PKG_RELEASE:=1
-PKG_HASH:=d72fc2c244603b4668da94081dc4d6067d467fdfa026e06a274012f16600480c
-PATCH_DIR:=./patches/v10.x
+PKG_HASH:=e922e215cc68eb5f94d33e8a0b61e2c863b7731cc8600ab955d3822da90ff8d1
+PATCH_DIR:=./patches/v16.x
 else
 ifeq ($(CONFIG_NODEJS_14),y)
-PKG_VERSION:=v14.16.1
+PKG_VERSION:=v14.19.1
 PKG_RELEASE:=1
-PKG_HASH:=e44adbbed6756c2c1a01258383e9f00df30c147b36e438f6369b5ef1069abac3
+PKG_HASH:=e1ae09dd861ab39af04483bb5c0fa54ddd82b6b15543be9a27ea6704a8ba9dd9
 PATCH_DIR:=./patches/v14.x
 else
-PKG_VERSION:=v12.22.1
+PKG_VERSION:=v12.22.11
 PKG_RELEASE:=1
-PKG_HASH:=dd650df7773a6ed3e390320ba51ef33cba6499f0e9397709ea3d1debdcbcb989
+PKG_HASH:=5e81da26fd5b1f89714483abaa68e3da304523e4334c78c49bfa7a03ee78d6f1
 PATCH_DIR:=./patches/v12.x
 endif
 endif
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 PKG_SOURCE_URL:=https://mirrors.tencent.com/nodejs-release/$(PKG_VERSION) \
-                https://npm.taobao.org/mirrors/node/$(PKG_VERSION) \
+                https://cdn.npmmirror.com/binaries/node/$(PKG_VERSION) \
                 https://nodejs.org/dist/$(PKG_VERSION)
 
 PKG_MAINTAINER:=Hirokazu MORIKAWA <morikw2@gmail.com>
@@ -55,7 +55,7 @@ define Package/node
   URL:=https://nodejs.org/
   DEPENDS:=@HAS_FPU @(i386||x86_64||arm||aarch64||mipsel) \
 	   +libstdcpp +libopenssl +zlib +libnghttp2 +libuv \
-	   +libcares +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
+	   +libatomic +NODEJS_ICU_SYSTEM:icu +NODEJS_ICU_SYSTEM:icu-full-data
 endef
 
 define Package/node/description
@@ -64,7 +64,7 @@ define Package/node/description
    package ecosystem, npm, is the largest ecosystem of open source libraries in the world.
 
   *** The following preparations must be made on the host side. ***
-      1. gcc 6.3 or higher is required.
+      1. gcc 8.3 or higher is required.
       2. To build a 32-bit target, gcc-multilib, g++-multilib are required.
       3. Requires libatomic package. (If necessary, install the 32-bit library at the same time.)
      ex) sudo apt-get install gcc-multilib g++-multilib
@@ -89,23 +89,23 @@ define Package/node/config
 
 	choice
 		prompt "Version Selection"
-		default NODEJS_12
+		default NODEJS_16
 		help
 		 Select node.js version.
-
-		config NODEJS_10
-			bool "10.x Maintenance LTS"
 
 		config NODEJS_12
 			bool "12.x Maintenance LTS"
 
 		config NODEJS_14
-			bool "14.x Active LTS"
+			bool "14.x Maintenance LTS"
+
+		config NODEJS_16
+			bool "16.x Active LTS"
 	endchoice
 
 	choice
 		prompt "i18n features"
-		default NODEJS_ICU_NONE
+		default NODEJS_ICU_SMALL
 		help
 		 Select i18n features
 
@@ -124,10 +124,6 @@ define Package/node/config
 endef
 
 NODEJS_CPU:=$(subst aarch64,arm64,$(subst x86_64,x64,$(subst i386,ia32,$(ARCH))))
-
-ifeq ($(CONFIG_NODEJS_10),y)
-TARGET_LDFLAGS+=-latomic
-endif
 
 ifneq ($(CONFIG_ARCH_64BIT),y)
 FORCE_32BIT:=-m32
@@ -154,7 +150,6 @@ CONFIGURE_ARGS:= \
 	--shared-openssl \
 	--shared-nghttp2 \
 	--shared-libuv \
-	--shared-cares \
 	--with-intl=$(if $(CONFIG_NODEJS_ICU_SMALL),small-icu,$(if $(CONFIG_NODEJS_ICU_SYSTEM),system-icu,none)) \
 	$(if $(findstring +neon,$(CONFIG_CPU_TYPE)),--with-arm-fpu=neon) \
 	$(if $(findstring +vfp",$(CONFIG_CPU_TYPE)),--with-arm-fpu=vfp) \
@@ -179,8 +174,13 @@ define Package/node/install
 endef
 
 define Package/node-npm/install
-	$(INSTALL_DIR) $(1)/usr/lib/node_modules
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/* $(1)/usr/lib/node_modules/
+	$(INSTALL_DIR) $(1)/usr/lib/node_modules/npm
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/npm/{package.json,LICENSE} \
+		$(1)/usr/lib/node_modules/npm/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/npm/README.md \
+		$(1)/usr/lib/node_modules/npm/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/node_modules/npm/{node_modules,bin,lib} \
+		$(1)/usr/lib/node_modules/npm/
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(LN) ../lib/node_modules/npm/bin/npm-cli.js $(1)/usr/bin/npm
 	$(LN) ../lib/node_modules/npm/bin/npx-cli.js $(1)/usr/bin/npx

@@ -32,7 +32,7 @@ include $(GO_INCLUDE_DIR)/golang-values.mk
 #
 #   * Files in any 'testdata' directory
 #
-#   * go.mod and go.sum, in any directory
+#   * go.mod, go.sum and go.work, in any directory
 #
 #   e.g. GO_PKG_INSTALL_EXTRA:=example.toml marshal_test.toml
 #
@@ -198,9 +198,11 @@ GO_PKG_TARGET_VARS= \
 	GOOS="$(GO_OS)" \
 	GOARCH="$(GO_ARCH)" \
 	GO386="$(GO_386)" \
+	GOAMD64="$(GO_AMD64)" \
 	GOARM="$(GO_ARM)" \
 	GOMIPS="$(GO_MIPS)" \
 	GOMIPS64="$(GO_MIPS64)" \
+	GOPPC64="$(GO_PPC64)" \
 	CGO_ENABLED=1 \
 	CC="$(TARGET_CC)" \
 	CXX="$(TARGET_CXX)" \
@@ -314,14 +316,3 @@ define GoSrcPackage
     Package/$(1)/install=$$(call GoPackage/Package/Install/Src,$$(1))
   endif
 endef
-
-
-# Deprecated variables - these will be removed after the next OpenWrt release
-GO_PKG_PATH=$(GO_PKG_BUILD_DEPENDS_PATH)
-GO_PKG_WORK_DIR=$(PKG_BUILD_DIR)/$(GO_PKG_WORK_DIR_NAME)
-GO_PKG_CACHE_DIR=$(GO_BUILD_CACHE_DIR)
-GO_PKG_DEFAULT_VARS=$(GO_PKG_VARS)
-GoPackage/Environment=$(GO_PKG_VARS)
-GoPackage/is_dir_not_empty=$$$$($(FIND) "$(1)" -maxdepth 0 -type d \! -empty 2>/dev/null)
-GoPackage/has_binaries=$(call GoPackage/is_dir_not_empty,$(GO_PKG_BUILD_BIN_DIR))
-# End of deprecated variables
